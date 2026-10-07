@@ -1,195 +1,98 @@
-# android-boilerplate
+[![Android](https://img.shields.io/badge/Android-Kotlin-7F77DD?style=flat)](https://developer.android.com/) [![Kotlin](https://img.shields.io/badge/Kotlin-2.0-1D9E75?logo=kotlin&logoColor=white&style=flat)](https://kotlinlang.org) [![CI](https://img.shields.io/github/actions/workflow/status/Syzygy-Hub/syzygy-base-android/ci.yml?label=ci&style=flat)](https://github.com/Syzygy-Hub/syzygy-base-android/actions/workflows/ci.yml) [![Version](https://img.shields.io/badge/version-3.0.0-D85A30?style=flat)](https://github.com/Syzygy-Hub/syzygy-base-android/releases) [![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
 
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.2.10-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
-[![API](https://img.shields.io/badge/API-29%2B-brightgreen)](https://developer.android.com/tools/releases/platforms)
-[![Android Studio](https://img.shields.io/badge/Android%20Studio-latest%20stable-3DDC84?logo=androidstudio&logoColor=white)](https://developer.android.com/studio)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Android CI](https://github.com/aks5686/android-boilerplate/actions/workflows/android.yml/badge.svg)](https://github.com/aks5686/android-boilerplate/actions/workflows/android.yml)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Syzygy-Hub/.github/main/brand/assets/banners/syzygy-banner-dark-1200.png">
+  <img src="https://raw.githubusercontent.com/Syzygy-Hub/.github/main/brand/assets/banners/syzygy-banner-light-1200.png" alt="Syzygy" width="600">
+</picture>
 
-Production-ready Android boilerplate with Clean Architecture, MVVM, Jetpack Compose, Kotlin Coroutines and GitHub Actions CI/CD.
+# syzygy-base-android
 
-## Getting Started
+Template Android app (Kotlin + Jetpack Compose) that wires all 5 Syzygy layers via the Core DI Container.
 
-1. Click **Use this template** on GitHub.
-2. Clone your repo locally:
-   ```bash
-   git clone https://github.com/<your-account>/<your-repo>.git
-   cd <your-repo>
+## About
+
+syzygy-base-android is a ready-to-clone Android template that wires Foundation, Core, Services, AI, and UI — the 5 Syzygy layers — through the Core DI Container from the moment the app starts. Clone the repo, run `setup.sh` with your app name and package, open in Android Studio, and all five layers resolve automatically from JitPack.
+
+## Platforms
+
+| Platform | Minimum | Build | Status |
+|---|---|---|---|
+| Android | 8.0+ (API 26) | Gradle / JitPack | ✅ Supported |
+
+## Requirements
+
+- Android Studio Meerkat or later
+- Kotlin 2.0+
+- Android API 26+
+- Java 17+
+
+## Installation
+
+1. Clone the repository:
    ```
-3. Run:
-   ```bash
-   ./setup.sh YourAppName
+   git clone https://github.com/Syzygy-Hub/syzygy-base-android.git
    ```
-4. Open in Android Studio and run.
+2. Rename the project to your app:
+   ```
+   ./setup.sh YourAppName com.your.package
+   ```
+3. Open the project in Android Studio.
+4. Sync Gradle — JitPack is already configured, and all 5 layers resolve automatically.
 
 ## Architecture
 
-The app follows **Clean Architecture** split into three layers per feature, plus a shared `core` layer and a hand-rolled `di` container (no Dagger/Hilt/Koin — dependencies are wired manually so the wiring stays easy to read and step through).
+The app depends on all 5 Syzygy layers, each pulled from JitPack at version 3.0.0:
 
-```
-presentation  →  domain  →  data
-   (UI/VM)      (interfaces)  (repositories/network/storage)
-```
+| Layer | Coordinate |
+|---|---|
+| Foundation | `com.github.Syzygy-Hub:syzygy-foundation-android:3.0.0` |
+| Core | `com.github.Syzygy-Hub:syzygy-core-android:3.0.0` |
+| Services | `com.github.Syzygy-Hub:syzygy-services-android:3.0.0` |
+| AI | `com.github.Syzygy-Hub:syzygy-ai-android:3.0.0` |
+| UI | `com.github.Syzygy-Hub:syzygy-ui-android:3.0.0` |
 
-- **presentation** — Jetpack Compose screens + `ViewModel`s exposing UI state as `StateFlow`. Only depends on `domain` interfaces.
-- **domain** — Plain Kotlin: use case interfaces (`*UseCaseProtocol`) and their implementations, plus domain models. No Android framework imports.
-- **data** — Repositories that implement domain contracts by talking to network (Retrofit) and storage (`EncryptedSharedPreferences`), mapping DTOs to domain models.
+DI wiring is in `AppModule.kt`. The application entry point is `SyzygyBaseApplication` / `MainActivity`. The Compose UI entry point is `LoginScreen`, wrapped in `SyzygyThemeProvider`.
 
-Dependencies point inward (`presentation → domain ← data`); `domain` never imports from `data` or `presentation`.
+## Contents
 
-### Dependency injection
+| Folder | Description |
+|---|---|
+| `core/` | Extension functions and network error types shared across the app |
+| `di/` | `AppModule` — registers all 5 Syzygy layers in the Core DI Container |
+| `features/` | Screen-scoped feature packages (auth, home, settings) |
+| `navigation/` | Navigation wiring stub using Core's `Router` |
+| `network/` | `TokenRefreshNetworkClient` — 401-retry interceptor wrapping `OkHttpNetworkClient` |
+| `storage/` | Storage wiring stub using `EncryptedStorageProvider` |
+| `theme/` | Theme wiring stub using `SyzygyThemeProvider` |
+| `ui/` | Shared UI components |
+| `utils/` | Project-specific Kotlin extension functions |
 
-There is no DI framework. [`AppModule`](app/src/main/java/com/aks/boilerplate/di/AppModule.kt) is a plain class that lazily builds singletons (network client, secure storage, repositories) and exposes factory functions for objects that need a new instance per screen (ViewModels). It's constructed once in [`BoilerplateApplication`](app/src/main/java/com/aks/boilerplate/BoilerplateApplication.kt) and handed to `Activity`/`Composable` call sites.
+## Usage
 
-## Folder Structure
-
-```
-app/src/main/java/com/aks/boilerplate/
-├── BoilerplateApplication.kt        # Application class, owns the DI container
-├── MainActivity.kt
-├── core/
-│   ├── network/                     # NetworkClient (Retrofit + OkHttp), ApiError
-│   ├── storage/                     # SecureStorage (EncryptedSharedPreferences)
-│   └── extensions/                  # Context/Flow extensions shared across features
-├── di/
-│   └── AppModule.kt                 # Manual DI graph (lazy singletons + factories)
-├── features/
-│   └── auth/
-│       ├── data/                    # AuthRepository, AuthApi, DTOs
-│       ├── domain/                  # AuthUseCaseProtocol, AuthUseCase, domain models
-│       └── presentation/            # LoginViewModel, LoginScreen
-└── ui/
-    └── theme/                       # Color, Type, Theme, Spacing/Radius design tokens
-```
-
-Each new feature follows the same `data / domain / presentation` split under `features/<feature-name>/`.
-
-## Features
-
-- **Clean Architecture + MVVM** — `presentation / domain / data` layering per feature, described above.
-- **Jetpack Compose UI** — Material 3 theming with shared `Color`, `Type`, `Theme`, and `Spacing` design tokens.
-- **Kotlin Coroutines & Flow** — `StateFlow`-driven UI state, structured concurrency throughout the data layer.
-- **Networking** — Retrofit + OkHttp `NetworkClient` with a logging interceptor and typed `ApiError` handling.
-- **Secure storage** — `SecureStorage` wrapper around `EncryptedSharedPreferences` for tokens/session data.
-- **Manual DI** — a plain `AppModule` container, no Dagger/Hilt/Koin required.
-- **Auth flow** — email/password login screen with validation, wired to `AuthRepository` via `AuthUseCaseProtocol`.
-- **Project rename script** — `./setup.sh` renames the package, applicationId, app name, and CI references in one step.
-
-## Usage Guide
-
-### Adding a new feature
-
-Follow the same `data / domain / presentation` split as `features/auth/`:
-
-1. **Domain** — define the contract and models first, with no Android imports:
-   ```
-   features/<feature>/domain/
-   ├── <Feature>UseCaseProtocol.kt   # interface consumed by presentation
-   ├── <Feature>UseCase.kt           # implementation, depends on the data-layer repository
-   └── <Feature>.kt                  # plain domain model(s)
-   ```
-2. **Data** — implement the repository against the domain contract, talking to `NetworkClient`/`SecureStorage` and mapping DTOs to domain models:
-   ```
-   features/<feature>/data/
-   ├── <Feature>Api.kt        # Retrofit service interface
-   ├── <Feature>Dto.kt        # network DTOs
-   └── <Feature>Repository.kt # implements the use case's dependency, maps DTO → domain model
-   ```
-3. **Presentation** — build the `ViewModel` (exposing `StateFlow<UiState>`) and the Compose screen, depending only on the domain `*UseCaseProtocol`:
-   ```
-   features/<feature>/presentation/
-   ├── <Feature>ViewModel.kt
-   └── <Feature>Screen.kt
-   ```
-4. **Wire it into `AppModule`** — add lazy singletons for the API/repository and a `use case`, plus a `provide<Feature>ViewModel()` factory, following the `authApi` / `authRepository` / `authUseCase` pattern already in [`AppModule`](app/src/main/java/com/aks/boilerplate/di/AppModule.kt):
-   ```kotlin
-   private val <feature>Api: <Feature>Api by lazy { networkClient.createService(<Feature>Api::class.java) }
-   private val <feature>Repository: <Feature>Repository by lazy { <Feature>Repository(<feature>Api, secureStorage) }
-   val <feature>UseCase: <Feature>UseCaseProtocol by lazy { <Feature>UseCase(<feature>Repository) }
-
-   fun provide<Feature>ViewModel(): <Feature>ViewModel = <Feature>ViewModel(<feature>UseCase)
-   ```
-
-### Networking
-
-[`NetworkClient`](app/src/main/java/com/aks/boilerplate/core/network/NetworkClient.kt) wraps Retrofit + OkHttp and is built once as a singleton in `AppModule`, with the auth token supplied from `SecureStorage`:
+Resolve a ViewModel from the DI container via the `AppModule` getter pattern:
 
 ```kotlin
-private val networkClient: NetworkClient by lazy {
-    NetworkClient(
-        baseUrl = BuildConfig.BASE_URL,
-        authTokenProvider = { secureStorage.getString(SecureStorage.KEY_ACCESS_TOKEN) },
-    )
+// In MainActivity or a Composable that has access to the Application
+val appModule = (application as SyzygyBaseApplication).appModule
+val loginViewModel = remember { appModule.provideLoginViewModel() }
+```
+
+Wrap Compose content with `SyzygyThemeProvider` so all components receive the design-system theme:
+
+```kotlin
+SyzygyThemeProvider(theme = SyzygyTheme.default) {
+    // your composable tree
 }
 ```
 
-To call an endpoint, define a Retrofit service interface for the feature and create it via `NetworkClient.createService`:
+## Contributing
 
-```kotlin
-interface <Feature>Api {
-    @GET("<feature>/me")
-    suspend fun getProfile(): ProfileDto
-}
+See [CONTRIBUTING.md](CONTRIBUTING.md) if present, or open a pull request against `main`. All submissions are reviewed before merge.
 
-private val <feature>Api: <Feature>Api by lazy { networkClient.createService(<Feature>Api::class.java) }
-```
+## Releases
 
-Every request automatically goes through the `User-Agent` header, the bearer-token auth interceptor, the error interceptor (401 hook point), and body logging in debug builds — no per-request setup needed.
-
-### Secure Storage
-
-[`SecureStorage`](app/src/main/java/com/aks/boilerplate/core/storage/SecureStorage.kt) wraps `EncryptedSharedPreferences` for small sensitive values (tokens, session flags). It's a singleton in `AppModule`:
-
-```kotlin
-private val secureStorage: SecureStorage by lazy { SecureStorage(applicationContext) }
-```
-
-Usage from a repository:
-
-```kotlin
-secureStorage.putString(SecureStorage.KEY_ACCESS_TOKEN, token)
-val token = secureStorage.getString(SecureStorage.KEY_ACCESS_TOKEN)
-secureStorage.remove(SecureStorage.KEY_REFRESH_TOKEN)
-secureStorage.clear() // e.g. on logout
-```
-
-Add new keys as constants on `SecureStorage.Companion` rather than hardcoding string keys at call sites.
-
-### Testing
-
-Run the unit test suite from the command line:
-
-```bash
-./gradlew testDebugUnitTest
-```
-
-This is also what CI runs on every push/PR to `main` (see below).
-
-## CI/CD
-
-`.github/workflows/android.yml` runs on every push/PR to `main`:
-
-- **Lint** — `./gradlew lintDebug`
-- **Unit tests** — `./gradlew testDebugUnitTest`
-- **Build** — `./gradlew assembleDebug`, uploading the debug APK as a build artifact
-
-Requirements for local builds: JDK 17, Android Studio (latest stable), Android SDK Platform 36.
-
-```bash
-# Build a debug APK from the command line
-./gradlew assembleDebug
-
-# Run unit tests
-./gradlew testDebugUnitTest
-
-# Run lint
-./gradlew lintDebug
-
-# Install and run on a connected device/emulator
-./gradlew installDebug
-```
+See [CHANGELOG.md](CHANGELOG.md) for a full release history. The current release is `3.0.0`.
 
 ## License
 
-Licensed under the [MIT License](LICENSE).
+[MIT](LICENSE)
