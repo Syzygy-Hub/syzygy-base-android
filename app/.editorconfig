@@ -1,0 +1,6 @@
+# App-module overrides — extends root .editorconfig (fetched from org in CI).
+[*.{kt,kts}]
+# Placeholder/stub files have no declarations yet.
+ktlint_standard_no-empty-file = disabled
+# Jetpack Compose functions follow the @Composable naming convention (PascalCase).
+ktlint_function_naming_ignore_when_annotated_with = Composable

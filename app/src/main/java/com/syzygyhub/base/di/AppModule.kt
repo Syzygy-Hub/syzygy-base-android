@@ -1,6 +1,13 @@
 package com.syzygyhub.base.di
 
 import android.content.Context
+import com.syzygy.services.auth.JWTAuthProvider
+import com.syzygy.services.networking.OkHttpNetworkClient
+import com.syzygy.services.persistence.EncryptedStorageProvider
+import com.syzygyhub.base.features.auth.data.AuthRepository
+import com.syzygyhub.base.features.auth.domain.AuthUseCase
+import com.syzygyhub.base.features.auth.presentation.LoginViewModel
+import com.syzygyhub.base.network.TokenRefreshNetworkClient
 import com.syzygyhub.core.configuration.ConfigRegistry
 import com.syzygyhub.core.di.Container
 import com.syzygyhub.core.di.Lifetime
@@ -12,18 +19,10 @@ import com.syzygyhub.core.logging.ConsoleLogDestination
 import com.syzygyhub.core.logging.Logger
 import com.syzygyhub.core.navigation.Router
 import com.syzygyhub.core.scheduling.CoroutineScheduler
-import com.syzygyhub.core.state.StateStore
 import com.syzygyhub.foundation.contracts.auth.AuthProvider
 import com.syzygyhub.foundation.contracts.logging.LogLevel
 import com.syzygyhub.foundation.contracts.network.NetworkClientProtocol
 import com.syzygyhub.foundation.contracts.storage.StorageProvider
-import com.syzygy.services.auth.JWTAuthProvider
-import com.syzygy.services.networking.OkHttpNetworkClient
-import com.syzygy.services.persistence.EncryptedStorageProvider
-import com.syzygyhub.base.features.auth.data.AuthRepository
-import com.syzygyhub.base.features.auth.domain.AuthUseCase
-import com.syzygyhub.base.features.auth.presentation.LoginViewModel
-import com.syzygyhub.base.network.TokenRefreshNetworkClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -49,7 +48,6 @@ import kotlinx.coroutines.runBlocking
  * [com.syzygyhub.base.SyzygyBaseApplication.appModule].
  */
 class AppModule(private val applicationContext: Context) {
-
     /** Root application scope for long-lived coroutines. */
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -179,18 +177,21 @@ class AppModule(private val applicationContext: Context) {
      * Uses [runBlocking] to resolve singletons from the container on the main thread.
      * In production you would use a ViewModel factory that suspends properly.
      */
-    fun provideLoginViewModel(): LoginViewModel = runBlocking {
-        val authProvider = container.resolve(JWTAuthProvider::class)
-        // AuthApi is Retrofit-based; a real implementation would resolve it via OkHttpNetworkClient/Retrofit.
-        // For now we supply a no-op stub so the app compiles and the DI wiring is demonstrable.
-        val authRepository = AuthRepository(NoOpAuthApi, authProvider)
-        val authUseCase = AuthUseCase(authRepository)
-        LoginViewModel(authUseCase)
-    }
+    fun provideLoginViewModel(): LoginViewModel =
+        runBlocking {
+            val authProvider = container.resolve(JWTAuthProvider::class)
+            // AuthApi is Retrofit-based; a real implementation would resolve it via OkHttpNetworkClient/Retrofit.
+            // For now we supply a no-op stub so the app compiles and the DI wiring is demonstrable.
+            val authRepository = AuthRepository(NoOpAuthApi, authProvider)
+            val authUseCase = AuthUseCase(authRepository)
+            LoginViewModel(authUseCase)
+        }
 }
 
 /** Stub Retrofit API used until a real back-end URL is configured. */
 private object NoOpAuthApi : com.syzygyhub.base.features.auth.data.AuthApi {
-    override suspend fun login(email: String, password: String) =
-        throw UnsupportedOperationException("Configure a real AuthApi via Retrofit to enable login")
+    override suspend fun login(
+        email: String,
+        password: String
+    ) = throw UnsupportedOperationException("Configure a real AuthApi via Retrofit to enable login")
 }

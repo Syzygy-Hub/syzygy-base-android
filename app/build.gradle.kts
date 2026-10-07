@@ -1,14 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ktlint)
 }
 
 android {
     namespace = "com.syzygyhub.base"
     compileSdk {
-        version = release(37) {
-            minorApiLevel = 1
-        }
+        version =
+            release(37) {
+                minorApiLevel = 1
+            }
     }
 
     defaultConfig {
@@ -84,4 +86,40 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+// ---------------------------------------------------------------------------
+// ktlint — lint Kotlin sources via ktlint-cli
+// ---------------------------------------------------------------------------
+
+val ktlintCli: Configuration by configurations.creating
+
+dependencies {
+    ktlintCli("com.pinterest.ktlint:ktlint-cli:1.0.1")
+}
+
+val ktlintCheckSources by tasks.registering(JavaExec::class) {
+    group = "verification"
+    description = "Runs ktlint against src/main/java/**/*.kt and src/test/java/**/*.kt"
+    classpath = ktlintCli
+    mainClass.set("com.pinterest.ktlint.Main")
+    args = listOf("src/main/java/**/*.kt", "src/test/java/**/*.kt")
+    workingDir = project.projectDir
+}
+
+tasks.named("ktlintCheck") {
+    dependsOn(ktlintCheckSources)
+}
+
+val ktlintFormatSources by tasks.registering(JavaExec::class) {
+    group = "formatting"
+    description = "Auto-fixes ktlint violations in src/**/*.kt"
+    classpath = ktlintCli
+    mainClass.set("com.pinterest.ktlint.Main")
+    args = listOf("-F", "src/main/java/**/*.kt", "src/test/java/**/*.kt")
+    workingDir = project.projectDir
+}
+
+tasks.named("ktlintFormat") {
+    dependsOn(ktlintFormatSources)
 }

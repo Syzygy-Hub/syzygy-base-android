@@ -8,8 +8,14 @@ package com.syzygyhub.base.features.auth.domain
  * layer and is injected at the DI boundary.
  */
 interface AuthRepositoryProtocol {
-    suspend fun login(email: String, password: String): AuthenticatedUser
+    suspend fun login(
+        email: String,
+        password: String
+    ): AuthenticatedUser
+
     suspend fun logout()
+
     suspend fun currentUser(): AuthenticatedUser?
+
     suspend fun isLoggedIn(): Boolean
 }

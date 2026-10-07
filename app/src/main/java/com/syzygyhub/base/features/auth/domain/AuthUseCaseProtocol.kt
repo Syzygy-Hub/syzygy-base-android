@@ -12,8 +12,10 @@ data class AuthenticatedUser(
  * never to [com.syzygyhub.base.features.auth.data.AuthRepository] directly.
  */
 interface AuthUseCaseProtocol {
-
-    suspend fun login(email: String, password: String): Result<AuthenticatedUser>
+    suspend fun login(
+        email: String,
+        password: String
+    ): Result<AuthenticatedUser>
 
     suspend fun logout()
 

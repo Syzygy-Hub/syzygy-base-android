@@ -12,7 +12,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class AppModuleSmokeTest {
-
     @Test
     fun `AppModule setup completes and container is not null`() {
         val context: Context = ApplicationProvider.getApplicationContext()

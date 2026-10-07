@@ -19,12 +19,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.syzygyhub.ui.android.theme.SyzygyThemeProvider
 import com.syzygyhub.ui.android.tokens.Spacing
@@ -71,9 +69,10 @@ private fun LoginContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(Spacing.lg),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(Spacing.lg),
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
@@ -102,17 +101,19 @@ private fun LoginContent(
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Spacing.sm),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = Spacing.sm),
         )
 
         Button(
             onClick = onLoginClicked,
             enabled = uiState.isSubmitEnabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = Spacing.lg),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = Spacing.lg),
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(

@@ -27,7 +27,6 @@ class TokenRefreshNetworkClient(
     private val delegate: NetworkClientProtocol,
     private val authProvider: JWTAuthProvider,
 ) : NetworkClientProtocol by delegate {
-
     override suspend fun execute(request: NetworkRequest): NetworkResponse {
         return try {
             delegate.execute(request)
@@ -39,13 +38,15 @@ class TokenRefreshNetworkClient(
             if (!refreshed) throw e
 
             // Retry with the new access token.
-            val currentToken = (authProvider.state.value as? com.syzygyhub.foundation.contracts.auth.AuthState.Authenticated)
-                ?.token?.accessToken
-                ?: throw e
+            val currentToken =
+                (authProvider.state.value as? com.syzygyhub.foundation.contracts.auth.AuthState.Authenticated)
+                    ?.token?.accessToken
+                    ?: throw e
 
-            val retryRequest = request.copy(
-                headers = request.headers + mapOf("Authorization" to "Bearer $currentToken"),
-            )
+            val retryRequest =
+                request.copy(
+                    headers = request.headers + mapOf("Authorization" to "Bearer $currentToken"),
+                )
 
             // On a second 401, propagate immediately (avoids infinite loop).
             delegate.execute(retryRequest)

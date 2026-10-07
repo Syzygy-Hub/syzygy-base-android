@@ -10,8 +10,10 @@ package com.syzygyhub.base.features.auth.domain
 class AuthUseCase(
     private val authRepository: AuthRepositoryProtocol,
 ) : AuthUseCaseProtocol {
-
-    override suspend fun login(email: String, password: String): Result<AuthenticatedUser> {
+    override suspend fun login(
+        email: String,
+        password: String
+    ): Result<AuthenticatedUser> {
         val trimmedEmail = email.trim()
         if (trimmedEmail.isEmpty() || !EMAIL_REGEX.matches(trimmedEmail)) {
             return Result.failure(IllegalArgumentException("Enter a valid email address"))
