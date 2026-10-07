@@ -4,19 +4,19 @@ plugins {
 }
 
 android {
-    namespace = "com.aks.boilerplate"
+    namespace = "com.syzygyhub.base"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
 
     defaultConfig {
-        applicationId = "com.aks.boilerplate"
+        applicationId = "com.syzygyhub.base"
         minSdk = 29
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 300000
+        versionName = "3.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -25,8 +25,9 @@ android {
 
     buildTypes {
         release {
+            isMinifyEnabled = true
             optimization {
-                enable = false
+                enable = true
             }
             buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")
         }
@@ -35,8 +36,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
@@ -66,7 +67,16 @@ dependencies {
 
     implementation(libs.androidx.security.crypto)
 
+    implementation("com.github.Syzygy-Hub:syzygy-foundation-android:3.0.0")
+    implementation("com.github.Syzygy-Hub:syzygy-core-android:3.0.0")
+    implementation("com.github.Syzygy-Hub:syzygy-services-android:3.0.0")
+    implementation("com.github.Syzygy-Hub:syzygy-ai-android:3.0.0")
+    implementation("com.github.Syzygy-Hub:syzygy-ui-android:3.0.0")
+
     testImplementation(libs.junit)
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.12.2")
+    testImplementation("androidx.test:core:1.6.1")
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

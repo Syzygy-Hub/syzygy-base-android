@@ -1,0 +1,14 @@
+layer: base
+version: "3.0.0"
+syzygy_foundation: "3.0.0"
+contracts:
+  - name: foundation
+    version: "3.0.0"
+  - name: core
+    version: "3.0.0"
+  - name: services
+    version: "3.0.0"
+  - name: ai
+    version: "3.0.0"
+  - name: ui
+    version: "3.0.0"
